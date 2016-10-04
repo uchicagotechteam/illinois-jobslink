@@ -4,20 +4,20 @@ Build Illinois Jobslink scraper, API, and front end for Illinois DHS.
 
 ## Overview
 + Scrape the relevant information from [https://illinoisjoblink.illinois.gov/ada/r/search/jobs](https://illinoisjoblink.illinois.gov/ada/r/search/jobs). We will be using [BeautifulSoup](https://www.crummy.com/software/BeautifulSoup/bs4/doc/) and [Requests](http://docs.python-requests.org/en/master/).
-..* Scrape `How To Apply`, `Education Level`, `Salary/Wages`, `Location`
-..*  Python dictionaries, conditional and loop structures, HTTP methods, JSON.
-..* Iron out authentication and login problems on Illinois Jobslink site.
+  * Scrape `How To Apply`, `Education Level`, `Salary/Wages`, `Location`
+  *  Python dictionaries, conditional and loop structures, HTTP methods, JSON.
+  * Iron out authentication and login problems on Illinois Jobslink site.
 
 + Store in Google Fusion Tables and sqlite database
-..* SQL queries helpful
-..* Will need to solve OAuth2 troubles
+  * SQL queries helpful
+  * Will need to solve OAuth2 troubles
 
 + [Derek Eder's Searcheable Map Template](http://derekeder.github.io/FusionTable-Map-Template/) will be used as the front end. 
-..* Used before in Network9 Project for CPS
-..* Bootstrap, JS stuff. 
+  * Used before in Network9 Project for CPS
+  * Bootstrap, JS stuff. 
 
 + Update Script that runs periodically (daily or weekly) and updates Google Fusion Tables and sqlite database. 
-..* Will live on Heroku
+  * Will live on Heroku
 
 ## Teamwork
 
