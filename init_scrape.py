@@ -12,7 +12,7 @@ os.remove(DB)
 conn = sqlite3.connect(DB)
 c = conn.cursor()
 c.execute('''CREATE TABLE listings
-                (name text, url text, apply text, zipcode text, wages text, description text, education text)''')
+                (name text, id text, url text, apply text, zipcode text, wages text, description text, education text)''')
 
 
 def scrape():
@@ -31,11 +31,11 @@ def scrape():
         for u in urls:
             job_url = u['href']  # The href part of the tag will have the url
             name = u.string  # The name will be in the string part of the a tag
-
+            id_num = u.string[u.string.find('(') + 1:u.string.find(')')]
             # Insert the job listing into the database (only the name and url
             # have been implemented at this point)
             c.execute(
-                "INSERT INTO listings VALUES (?, ?, 'TODO', 'TODO', 'TODO', 'TODO', 'TODO');", (name, job_url))
+                "INSERT INTO listings VALUES (?, ?, ?, 'TODO', 'TODO', 'TODO', 'TODO', 'TODO');", (name, id_num, job_url))
 
     conn.commit()
 
