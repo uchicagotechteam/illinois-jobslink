@@ -4,34 +4,40 @@ from settings import *
 import json
 import sqlite3
 import sys
+import os
 from robobrowser import RoboBrowser
 
-# Init database
-conn = sqlite3.connect('listings.db')
+# Init Database
+os.remove(DB)
+conn = sqlite3.connect(DB)
 c = conn.cursor()
-
-
-def initialize():
-    c.execute('''CREATE TABLE listings
-                    (apply text, zipcode text, wages text, description text, education text)''')
+c.execute('''CREATE TABLE listings
+                (name text, url text, apply text, zipcode text, wages text, description text, education text)''')
 
 
 def scrape():
     url = SEARCH_URL
     r = session.get(SEARCH_URL)
     soup = BeautifulSoup(r.content, "html.parser")
-    print(soup.prettify().encode('utf-8'))
+    # print(soup.prettify().encode('utf-8'))
 
     # Print the urls for each job listing.
     # Will need to implement stepping through these urls and scraping the
     # relevant data.
-    listings = soup.find_all("dt")
+    listings = soup.find_all("dt")  # Finds all dt tags (elements in the list)
     for l in listings:
-        print(l)
+        # Finds the a tag, which will have the name and the url
         urls = l.find_all('a')
         for u in urls:
-            job_url = u['href']
-            print(BASE_URL + job_url)
+            job_url = u['href']  # The href part of the tag will have the url
+            name = u.string  # The name will be in the string part of the a tag
+
+            # Insert the job listing into the database (only the name and url
+            # have been implemented at this point)
+            c.execute(
+                "INSERT INTO listings VALUES (?, ?, 'TODO', 'TODO', 'TODO', 'TODO', 'TODO');", (name, job_url))
+
+    conn.commit()
 
 if __name__ == '__main__':
     session = requests.Session()
@@ -65,3 +71,9 @@ if __name__ == '__main__':
     # print(r.content)
 
     scrape()
+
+    # Print our entries in the database
+    for row in c.execute('SELECT * FROM listings'):
+        print row
+
+    c.close()
