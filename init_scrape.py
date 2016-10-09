@@ -35,8 +35,13 @@ def scrape():
             id_num = u.string[u.string.find('(') + 1:u.string.find(')')]
             # Insert the job listing into the database (only the name and url
             # have been implemented at this point)
-            c.execute(
-                "INSERT INTO listings VALUES (?, ?, ?, 'TODO', 'TODO', 'TODO', 'TODO', 'TODO');", (name, id_num, job_url))
+
+        # Need to scrape for description, zipcode, wages, education, etc and
+        # put them into the DB. ---> Use above code as a model as well as what
+        # we did in the scraping workshop.
+
+        c.execute(
+            "INSERT INTO listings VALUES (?, ?, ?, 'TODO', 'TODO', 'TODO', 'TODO', 'TODO');", (name, id_num, job_url))
 
     conn.commit()
 
