@@ -5,10 +5,11 @@ import json
 import sqlite3
 import sys
 import os
-from robobrowser import RoboBrowser
+import os.path
 
 # Init Database
-os.remove(DB)
+if(os.path.exists(DB)):
+    os.remove(DB)
 conn = sqlite3.connect(DB)
 c = conn.cursor()
 c.execute('''CREATE TABLE listings
