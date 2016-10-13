@@ -28,18 +28,32 @@ git clone /FORKED/REPO/URL
 
 Make sure you make a new branch when you are implementing a new feature. Be sure to be working in the right branch when coding.
 
+You will also need to make sure you set your upstream repository correctly. To do that do the following:
+
 ```
-git checkout -b NEW_BRANCH_NAME
-OR
-git checkout EXISTING_BRANCH
+git remote add upstream https://github.com/uchicagotechteam/illinois-jobslink.git
 ```
+
+Then you will need to create and pull the branches themselves, as follows:
+
+```
+git checkout -b init_scrape
+git checkout init_scrape
+git pull upstream init_scrape
+
+git checkout -b api
+git checkout api
+git pull upstream api
+```
+
+You'll be ready to code now! Make sure you are in the right branch by using `git checkout <BRANCH_NAME>`. 
 
 Once you code, make sure you add your files and commit them. Push them to your forked repository when ready.
 
 ```
 git add FILENAMES (or use -a {be careful!})
 git commit -m "Insert commit message."
-git push
+git push origin <BRANCH_NAME>
 ```
 Once you're done with your branch, be sure to send a pull request so I can merge your code with the existing project.
 
