@@ -81,7 +81,7 @@ pip install -r requirements.txt
 
 This will create a virtual environment so that any development you do will not be affected by the global system variables. Also, you will download all of the packages from `requirements.txt`, so that the code will actually run. If you install any new packages for code you have written, make sure to put them into `requirements.txt`. 
 
-## Branch: `init_scrape`
+## Team: `Srape`
 The `init_scrape` branch is the branch dedicated for the initial scrape. Our objectives/tasks for this branch are:
 
 + Login to `https://illinoisjoblink.illinois.gov/ada/r/search/jobs`
@@ -161,6 +161,71 @@ The `init_scrape` branch is the branch dedicated for the initial scrape. Our obj
 
   This is the url for the second webpage. Notice the very subtle `page=2` in the url. So what we can do is iterate through by changing the number from `page=2` to `page=3` to get the third page. If we want the `ith` page, we would do `'page=' + str(i)`.
 
+## Team: `Backend`
 
++ Write to Google Fusion Tables (OAuth)
+  
+  To use the searcheable map template developed by Derek Eder, we need to store all of our data on Google Fusion Tables. So we will need to write our data from our SQL database to a Google Fusion Table. We can do this through the Google API found: [https://developers.google.com/fusiontables/docs/v1/using](https://developers.google.com/fusiontables/docs/v1/using). 
 
+  There are difficulties with OAuth which is a very confusing paradigm that Google uses for security. But once we have the data in the Google Fusion Table, mapping the data will be very easy. 
 
++ Endpoints
+  
+  Our data is stored in a `sqlite` database, which will be served via an API built on Flask. If we look in the `api` branch, there is `api.py` file that has all of the Flask code (well really basic stuff) in it. We can instantiate it as follows. (Make sure you have all of the correct packages installed i.e. `pip install requsts`, `pip install flask`, and other packages).
+  ```
+  (env) PS D:\Projects\TechTeam\illinois-jobslink> python api.py
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger pin code: 115-448-509
+ * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+  ```
+
+  This indicates that our server is running. We can then go to our favorite browser and type into the browser bar `http://127.0.0.1:5000/`. 
+
+  You should get an error at this point, because in `api.py` we haven't written what should be done when the `/` endpoint is called. BUT we do have `/jobs` endpoint defined. So we can type in `http://127.0.0.1:5000/jobs` and we should see something pop up! It should look something like this 
+
+  ```
+  {
+    "jobs": ""
+  }
+  ```
+
+  So far this is empty since we haven't actually returned any of the job listings, but it should eventually come back with a list of all the jobs that fit our parameters.
+
+  Jobs can be filtered via the url and a query string. If we type in 
+  ```
+  http://127.0.0.1:5000/jobs?name=ferret
+  ```
+  we can filter all of the jobs with the name `ferret`. This won't actually work since we haven't written the code to actually do it. We can chain together parameters with the `&` character as follows
+
+  ```
+  http://127.0.0.1:5000/jobs?name=ferret&id=007
+  ```
+
+  So we will be using this paradigm. A user can filter what jobs they want by using this query string, and its our job to only grab the jobs in the database that fit the parameters. Some more info about [query strings](https://en.wikipedia.org/wiki/Query_string).
+
+  We will be servicing the requests through SQL statements, and you can find model code in `api.py` that does this. 
+
+  Another thing to think about is whether we want to add more endpoints or functionality so that users can ask for data in different and more complex ways. 
+
++ Update
+  
+  We are going to have to solve how to update our database with new jobs and removing old jobs. We will be doing this with SQL statements again and probably periodically (daily or weekly?). [SQL](http://www.w3schools.com/sql/) commands and syntax.
+
+## Team: Frontend
+
++ Searchable Map Template
+  
+  We will be using [Derek Eder's Searcheable Map Template](http://derekeder.github.io/FusionTable-Map-Template/) for our mapping purposes. He has GREAT documentation so check his page out. 
+
+  We really have free range on how we want to design the map, so you guys have a lot of creative freedom.
+
++ Analytics
+  
+  I think it might be cool to do some of our own analytics on this data. We can use R as well as Python with `matplotlib` and `pandas`.
+
+  You should start to think about what trends, relationships we want to look at and how we can describe these graphically.
+
++ D3
+
+  [D3](https://d3js.org/) is a REALLY cool visualization library written in JavaScript. I don't have much experience at all but I think we can make some cool looking graphics. This team will work with the Analytics team closely.
