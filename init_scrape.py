@@ -28,8 +28,8 @@ def setupAndLogin(URL):
     password_field = browser.find_element_by_name("v_password")
     login_button = browser.find_element_by_name("button") # Not great but only button on page
     #print username_field, password_field, login_button
-    username_field.send_keys('subhodhkotekal')
-    password_field.send_keys('techteam$1')
+    username_field.send_keys(USER_NAME)
+    password_field.send_keys(PASSWORD)
     login_button.click()
     browser.find_element_by_name('continue').click()
     # browser.find_element_by_xpath("//input[@name='question' and @value='1']").click()
@@ -51,7 +51,6 @@ def scrape():
         browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
         listings = soup.find_all("dt")  # Finds all dt tags
         for l in listings:
-            print l
             # Finds the a tag, which will have the name and the url
             urls = l.find_all('a')
             for u in urls:
