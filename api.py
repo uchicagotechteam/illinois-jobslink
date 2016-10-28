@@ -38,7 +38,12 @@ def get_jobs():
     # Get the parameters from the url
     name = request.args.get('name')
     id_num = request.args.get('id')
+    date = request.args.get('date')
+    zip = request.args.get('zip')
+    education = request.args.get('education')
 
+
+# city, state, industry, company, date, zip, education, wage, 
     # Build the query string by appending values
     if name is not None:
         query += join_str + ('name = %s' % (name))
@@ -46,6 +51,17 @@ def get_jobs():
     if name is not None:
         query += join_str + ('id = %s' % (id_num))
         join_str = ' AND '
+    if date is not None:
+        query += join_str + ('date = %s' % (date))
+        join_str = 'AND'
+    if zip is not None:
+        query += join_str + ('zip = %s' % (zip))
+        join_str = 'AND'
+    if education is not None:
+        query += join_str + ('education = %s' % (education))
+        join_str = 'AND'
+ #   if wage 
+
 
     for row in c.execute(query):
         print row
