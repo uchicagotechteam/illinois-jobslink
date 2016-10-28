@@ -1,11 +1,15 @@
-from bs4 import BeautifulSoup
-import requests
-from settings import *
-import json
-import sqlite3
 import sys
 import os
 import os.path
+import requests
+import json
+import sqlite3
+
+from bs4 import BeautifulSoup
+from selenium import webdriver
+
+from settings import *
+
 
 # Init Database
 if(os.path.exists(DB)):
@@ -16,19 +20,38 @@ c.execute('''CREATE TABLE listings
                 (name text, id text, url text, apply text, zipcode text, wages text, description text, education text)''')
 
 
+def setupAndLogin(URL):
+    # Will need to install Chrome Webdriver via homebrew
+    browser = webdriver.Chrome()
+    browser.get('https://illinoisjoblink.illinois.gov/ada/skillmatch/skl_login.cfm')
+    username_field = browser.find_element_by_name("v_username")
+    password_field = browser.find_element_by_name("v_password")
+    login_button = browser.find_element_by_name("button") # Not great but only button on page
+    #print username_field, password_field, login_button
+    username_field.send_keys('subhodhkotekal')
+    password_field.send_keys('techteam$1')
+    login_button.click()
+    browser.find_element_by_name('continue').click()
+    # browser.find_element_by_xpath("//input[@name='question' and @value='1']").click()
+    # browser.find_element_by_name('Continue5').click()
+    return browser
+
 def scrape():
     url1 = 'https://illinoisjoblink.illinois.gov/ada/r/search/jobs?is_subsequent_search=false&page=1&per_page=250&refiners=%7B%7D&status=Active&utf8=%E2%9C%93'
-
+    browser = setupAndLogin(LOGIN_URL)
     # Goes through all 40 pages of job listings, scrapes job url, name, and id
     # number
     # There are 40 pages of results, with 250 listings per page. There should
     # be more, but it's capped here.
     for n in range(1, 41):
         page = url1[:87] + str(n) + url1[88:]   # Changes the page= number
-        r = requests.get(page)
-        soup = BeautifulSoup(r.content, "html.parser")
+        browser.get(page)
+        soup = BeautifulSoup(browser.page_source, "html.parser")
+        # So user can see what's going on for testing
+        browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
         listings = soup.find_all("dt")  # Finds all dt tags
         for l in listings:
+            print l
             # Finds the a tag, which will have the name and the url
             urls = l.find_all('a')
             for u in urls:
