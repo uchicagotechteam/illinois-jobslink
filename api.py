@@ -26,7 +26,8 @@ def close_connection(exception):
 # id = <string>
 # other parameters = (date posted?, zipcode?, education?, etc.)
 
-
+# @app.route('/help') to list the available filters and 
+# @app.route('/') for a welcome page
 @app.route('/jobs')
 def get_jobs():
     c = get_db().cursor()
@@ -48,7 +49,7 @@ def get_jobs():
     if name is not None:
         query += join_str + ('name = %s' % (name))
         join_str = ' AND '
-    if name is not None:
+    if id_num is not None:
         query += join_str + ('id = %s' % (id_num))
         join_str = ' AND '
     if date is not None:
