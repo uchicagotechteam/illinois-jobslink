@@ -1,5 +1,5 @@
-# DHS Project
-Build Illinois Jobslink scraper, API, and front end for Illinois DHS. 
+# Illinois JobsLink Project
+Build Illinois Jobslink scraper, API, and front end. 
 
 
 ## Overview
