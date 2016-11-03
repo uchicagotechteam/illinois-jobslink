@@ -23,11 +23,13 @@ c.execute('''CREATE TABLE listings
 def setupAndLogin(URL):
     # Will need to install Chrome Webdriver via homebrew
     browser = webdriver.Chrome()
-    browser.get('https://illinoisjoblink.illinois.gov/ada/skillmatch/skl_login.cfm')
+    browser.get(
+        'https://illinoisjoblink.illinois.gov/ada/skillmatch/skl_login.cfm')
     username_field = browser.find_element_by_name("v_username")
     password_field = browser.find_element_by_name("v_password")
-    login_button = browser.find_element_by_name("button") # Not great but only button on page
-    #print username_field, password_field, login_button
+    login_button = browser.find_element_by_name(
+        "button")  # Not great but only button on page
+    # print username_field, password_field, login_button
     username_field.send_keys(USER_NAME)
     password_field.send_keys(PASSWORD)
     login_button.click()
@@ -35,6 +37,7 @@ def setupAndLogin(URL):
     # browser.find_element_by_xpath("//input[@name='question' and @value='1']").click()
     # browser.find_element_by_name('Continue5').click()
     return browser
+
 
 def scrape():
     url1 = 'https://illinoisjoblink.illinois.gov/ada/r/search/jobs?is_subsequent_search=false&page=1&per_page=250&refiners=%7B%7D&status=Active&utf8=%E2%9C%93'
@@ -48,7 +51,8 @@ def scrape():
         browser.get(page)
         soup = BeautifulSoup(browser.page_source, "html.parser")
         # So user can see what's going on for testing
-        browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        browser.execute_script(
+            "window.scrollTo(0, document.body.scrollHeight);")
         listings = soup.find_all("dt")  # Finds all dt tags
         for l in listings:
             # Finds the a tag, which will have the name and the url
@@ -84,22 +88,22 @@ if __name__ == '__main__':
                 break
         except KeyError as e:
             pass
-    # print(soup.prettify().encode('utf-8'))
-    # print(token)
+    print(soup.prettify().encode('utf-8'))
+    print(token)
 
-    # login_data = dict(v_username=USER_NAME,
-    #                   v_password=PASSWORD,
-    #                   authenticity_token=token,
-    #                   FormName=0,
-    #                   fromlogin=1,
-    #                   button='Log+in')
-    # login_data['utf-8'] = '&#x2713;'
+    login_data = dict(v_username=USER_NAME,
+                      v_password=PASSWORD,
+                      authenticity_token=token,
+                      FormName=0,
+                      fromlogin=1,
+                      button='Log+in')
+    login_data['utf-8'] = '&#x2713;'
 
-    # r = session.post(LOGIN_URL, data=login_data)
+    r = session.post(LOGIN_URL, data=login_data)
 
-    # print(r.content)
+    print(r.content)
 
-    # scrape()
+    scrape()
 
     # Print our entries in the database
     for row in c.execute('SELECT * FROM listings'):
