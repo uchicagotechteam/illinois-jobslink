@@ -38,13 +38,31 @@ def get_jobs():
     # Get the parameters from the url
     name = request.args.get('name')
     id_num = request.args.get('id')
-
+    city = request.args.get('city')
+    state = request.args.get('state')
+    industry = request.args.get('industry')
+    company = request.args.get('company')
+     
     # Build the query string by appending values
+    # city state industry company 
+   
     if name is not None:
         query += join_str + ('name = %s' % (name))
         join_str = ' AND '
-    if name is not None:
+    if id_num is not None:
         query += join_str + ('id = %s' % (id_num))
+        join_str = ' AND '
+    if city is not None:
+        query += join_str + ('city = %s' % (city))
+        join_str = ' AND '
+    if state is not None:
+        query += join_str + ('state = %s' % (state))
+        join_str = ' AND '
+    if industry is not None:
+        query += join_str + ('industry = %s' % (industry))
+        join_str = ' AND '
+    if company is not None:
+        query += join_str + ('company = %s' % (company))
         join_str = ' AND '
 
     for row in c.execute(query):
