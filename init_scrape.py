@@ -31,7 +31,7 @@ def scrape():
     for n in range(1, 41):
         # Changes the page= number
         page = PAGE_URL[:87] + str(n) + PAGE_URL[88:]
-        # r = session.get(page)
+        r = session.get(page)
         soup = BeautifulSoup(r.content, "html.parser")
         listings = soup.find_all("dt")  # Finds all dt tags
         for l in listings:
@@ -40,18 +40,23 @@ def scrape():
             for u in urls:
                 # The href part of the tag will have the url
                 job_url = u['href']
-                name = u.string     # The name will be in the string part of the a tag
+                name = u.string    # The name will be in the string part of the a tag
                 id_num = u.string[u.string.find('(') + 1:u.string.find(')')]
 
-                # print(r.content)
+                # Step through to the job page.
+                job_page = session.get(BASE_URL + job_url)
+                print(job_page.content)
+
+                # Need to scrape for description, zipcode, wages, education, etc and
+                # put them into the DB. ---> Use above code as a model as well as what
+                # we did in the scraping workshop.
 
                 # Insert the job listing into the database (only the name and url
                 # have been implemented at this point)
                 c.execute(
                     "INSERT INTO listings VALUES (?, ?, ?, 'TODO', 'TODO', 'TODO', 'TODO', 'TODO');", (name, id_num, job_url))
-            # Need to scrape for description, zipcode, wages, education, etc and
-            # put them into the DB. ---> Use above code as a model as well as what
-            # we did in the scraping workshop.
+
+        print(n)
     conn.commit()
 
 
@@ -61,7 +66,7 @@ def login():
     # pulls login url from page, could change per session
     login = soup.find_all('form')[0]['action']
 
-    login data = dict(v_username=USER_NAME,
+    login_data = dict(v_username=USER_NAME,
                       v_password=PASSWORD,
                       FormName='Form0',
                       fromlogin=1,
