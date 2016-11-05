@@ -167,7 +167,56 @@ The `init_scrape` branch is the branch dedicated for the initial scrape. Our obj
   
   To use the searcheable map template developed by Derek Eder, we need to store all of our data on Google Fusion Tables. So we will need to write our data from our SQL database to a Google Fusion Table. We can do this through the Google API found: [https://developers.google.com/fusiontables/docs/v1/using](https://developers.google.com/fusiontables/docs/v1/using). 
 
-  There are difficulties with OAuth which is a very confusing paradigm that Google uses for security. But once we have the data in the Google Fusion Table, mapping the data will be very easy. 
+  I've done some preliminary digging around and coding, and I think I'm on to something. Checkout the `oauth.py` file under the `oauth` branch. Furthermore, checkout the following links:
+
+  [Handling OAauth 2.0 Authentication](https://developers.google.com/identity/protocols/OAuth2WebServer)
+  [Fusion Tables API](https://developers.google.com/fusiontables/)
+  [More Fusion Tables API](https://developers.google.com/resources/api-libraries/documentation/fusiontables/v1/python/latest/index.html)
+  [SQL and Fusion Tables](https://developers.google.com/fusiontables/docs/v2/sql-reference)
+
+  There is some setup that is needed to start testing locally. FOLLOW THE STEPS IN [Handling OAauth 2.0 Authentication](https://developers.google.com/identity/protocols/OAuth2WebServer). You will need to setup credentials and other stuff at the [Google API Developer Console](https://console.developers.google.com/). Once you follow the steps, you need to make sure that in the following code found in `oauth.py`
+
+  ```
+
+@app.route('/callback')
+def callback():
+    flow = client.flow_from_clientsecrets(
+        'client_secret_911503641744-hn8pinmojgfi1n4poh2n8ssk48bu8idn.apps.googleusercontent.com.json',
+        scope='https://www.googleapis.com/auth/fusiontables',
+        redirect_uri='http://localhost:5000/callback')
+
+    flow.params['access_type'] = 'offline'
+
+    if 'code' not in request.args:
+        auth_uri = flow.step1_get_authorize_url()
+        return redirect(auth_uri)
+    else:
+        auth_code = request.args.get('code')
+        credentials = flow.step2_exchange(auth_code)
+        session['credentials'] = credentials.to_json()
+        return redirect(url_for('index'))
+  ```
+
+  that you insert your own `client_secrets.json` file. MAKE SURE YOU DON'T PUSH THE JSON FILE TO GITHUB. THAT'S REALLY BAD! 
+
+  Also, make sure you make your own personal Fusion Table and in the following spot: 
+
+  ```
+  ft_service = build('fusiontables', 'v2', http_auth)
+    ft_service.query().sql(
+        sql="INSERT INTO 1WOu6DaHenRNNXIWHkNWjGf66sUCnfl5fLQHhHOwt (col0) VALUES ('TODO');").execute()
+    tables = ft_service.table().list().execute()
+    return json.dumps(tables)
+  ```
+
+  you put in the `table_id` for your Fusion Table. Now make sure you have a column called `col0`, and this SQL statement will put a `TODO` value in that column!
+
+  This is the basis for how writing to Fusion Table will be. Instead of `TODO`, we will query our database and write whatever we get back into the Fusion Table. 
+
+  There are a few things we still need to figure out though. 
+  + We will need to update old entries with either new information or deleting really old listings.
+  + How do we set up the Flask framework so that we can automate the write on a daily or weekly basis? 
+  + How do we get prolonged access to the user's data? There is something called a `refresh` token, but I haven't figured it out yet. 
 
 + Endpoints
   
