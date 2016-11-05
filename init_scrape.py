@@ -38,6 +38,7 @@ def setupAndLogin(URL):
 
 def scrape():
     url1 = 'https://illinoisjoblink.illinois.gov/ada/r/search/jobs?is_subsequent_search=false&page=1&per_page=250&refiners=%7B%7D&status=Active&utf8=%E2%9C%93'
+    url_base = 'https://illinoisjoblink.illinois.gov'
     browser = setupAndLogin(LOGIN_URL)
     # Goes through all 40 pages of job listings, scrapes job url, name, and id
     # number
@@ -58,6 +59,9 @@ def scrape():
                 job_url = u['href']
                 name = u.string     # The name will be in the string part of the a tag
                 id_num = u.string[u.string.find('(') + 1:u.string.find(')')]
+
+                browser.get(url_base + job_url)
+
 
                 # Insert the job listing into the database (only the name and url
                 # have been implemented at this point)
