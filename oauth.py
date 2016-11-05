@@ -16,13 +16,11 @@ def index():
         return redirect(url_for('callback'))
     credentials = client.OAuth2Credentials.from_json(session['credentials'])
     if credentials.access_token_expired:
-        return redirect(url_for('oauth2callback'))
+        return redirect(url_for('callback'))
     else:
         http_auth = credentials.authorize(httplib2.Http())
 
     ft_service = build('fusiontables', 'v2', http_auth)
-    ft_service.query().sql(
-        sql="INSERT INTO 1WOu6DaHenRNNXIWHkNWjGf66sUCnfl5fLQHhHOwt (col0) VALUES ('TODO');").execute()
     tables = ft_service.table().list().execute()
     return json.dumps(tables)
 
@@ -44,6 +42,26 @@ def callback():
         credentials = flow.step2_exchange(auth_code)
         session['credentials'] = credentials.to_json()
         return redirect(url_for('index'))
+
+
+@app.route('/update')
+def update():
+    if 'credentials' not in session:
+        return redirect(url_for('index'))
+    credentials = client.OAuth2Credentials.from_json(session['credentials'])
+    if credentials.access_token_expired:
+        return redirect(url_for('callback'))
+    else:
+        http_auth = credentials.authorize(httplib2.Http())
+
+    ft_service = build('fusiontables', 'v2', http_auth)
+    ft_service.query().sql(
+        sql="INSERT INTO 1WOu6DaHenRNNXIWHkNWjGf66sUCnfl5fLQHhHOwt (col0) VALUES ('TODO');").execute()
+
+    ft_service.column().insert(tableId='1WOu6DaHenRNNXIWHkNWjGf66sUCnfl5fLQHhHOwt',
+                               body=dict(kind="fusiontables#column", columnId=307, type="String", name="my_col"))
+    return "WE DID IT!!"
+
 
 if __name__ == '__main__':
     import uuid
