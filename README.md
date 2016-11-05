@@ -81,7 +81,7 @@ pip install -r requirements.txt
 
 This will create a virtual environment so that any development you do will not be affected by the global system variables. Also, you will download all of the packages from `requirements.txt`, so that the code will actually run. If you install any new packages for code you have written, make sure to put them into `requirements.txt`. 
 
-## Team: `Srape`
+## Team: `Scrape`
 The `init_scrape` branch is the branch dedicated for the initial scrape. Our objectives/tasks for this branch are:
 
 + Login to `https://illinoisjoblink.illinois.gov/ada/r/search/jobs`
