@@ -1,4 +1,4 @@
-# Illinois JobsLink project
+# Illinois JobsLink Project
 Build Illinois Jobslink scraper, API, and front end. 
 
 
