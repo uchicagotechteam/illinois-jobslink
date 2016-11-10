@@ -4,6 +4,7 @@ from flask import *
 from settings import *
 import httplib2
 import json
+import sqlite3
 
 from apiclient.discovery import build
 
@@ -46,6 +47,8 @@ def callback():
 
 @app.route('/update')
 def update():
+    conn = sqlite3.connect(DB)
+    c = conn.cursor()
     if 'credentials' not in session:
         return redirect(url_for('index'))
     credentials = client.OAuth2Credentials.from_json(session['credentials'])
@@ -54,12 +57,15 @@ def update():
     else:
         http_auth = credentials.authorize(httplib2.Http())
 
+    # Build Google Service for Fusion Table
     ft_service = build('fusiontables', 'v2', http_auth)
-    ft_service.query().sql(
-        sql="INSERT INTO 1WOu6DaHenRNNXIWHkNWjGf66sUCnfl5fLQHhHOwt (col0) VALUES ('TODO');").execute()
 
-    ft_service.column().insert(tableId='1WOu6DaHenRNNXIWHkNWjGf66sUCnfl5fLQHhHOwt',
-                               body=dict(kind="fusiontables#column", columnId=307, type="String", name="my_col"))
+    # Query everything in database
+    for row in c.execute('SELECT * FROM listings'):
+        print row
+        ft_service.query().sql(
+            sql="INSERT INTO 1WOu6DaHenRNNXIWHkNWjGf66sUCnfl5fLQHhHOwt (Name, 'Job Url') VALUES " + str(row) + ";").execute()
+
     return "WE DID IT!!"
 
 
