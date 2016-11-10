@@ -1,11 +1,19 @@
-from bs4 import BeautifulSoup
-import requests
-from settings import *
-import json
-import sqlite3
 import sys
 import os
 import os.path
+import requests
+import json
+import sqlite3
+import re
+
+from bs4 import BeautifulSoup
+# from selenium import webdriver
+
+from settings import *
+
+
+# session needs to be global to maintain same session
+session = requests.Session()
 
 # Init Database
 if(os.path.exists(DB)):
@@ -17,67 +25,81 @@ c.execute('''CREATE TABLE listings
 
 
 def scrape():
-    url = SEARCH_URL
-    r = session.get(SEARCH_URL)
-    soup = BeautifulSoup(r.content, "html.parser")
-    # print(soup.prettify().encode('utf-8'))
+    # Goes through all 40 pages of job listings, scrapes job url, name, and id
+    # number
+    # There are 40 pages of results, with 250 listings per page. There should
+    # be more, but it's capped here.
+    for n in range(1, 41): # When testing: use range(1, 2)
+        # Changes the page= number
+        page = PAGE_URL[:87] + str(n) + PAGE_URL[88:]
+        r = session.get(page)
+        soup = BeautifulSoup(r.content, "html.parser")
+        listings = soup.find_all("dt")  # Finds all dt tags
+        for l in listings:
+            # Finds the a tag, which will have the name and the url
+            urls = l.find_all('a')
+            for u in urls:
+                # The href part of the tag will have the url
+                job_url = u['href']
+                name = u.string    # The name will be in the string part of the a tag
+                id_num = u.string[u.string.find('(') + 1:u.string.find(')')]
 
-    # Print the urls for each job listing.
-    # Will need to implement stepping through these urls and scraping the
-    # relevant data.
-    listings = soup.find_all("dt")  # Finds all dt tags (elements in the list)
-    for l in listings:
-        # Finds the a tag, which will have the name and the url
-        urls = l.find_all('a')
-        for u in urls:
-            job_url = u['href']  # The href part of the tag will have the url
-            name = u.string  # The name will be in the string part of the a tag
-            id_num = u.string[u.string.find('(') + 1:u.string.find(')')]
-            # Insert the job listing into the database (only the name and url
-            # have been implemented at this point)
-            c.execute(
-                "INSERT INTO listings VALUES (?, ?, ?, 'TODO', 'TODO', 'TODO', 'TODO', 'TODO');", (name, id_num, job_url))
-        # Need to scrape for description, zipcode, wages, education, etc and
-        # put them into the DB. ---> Use above code as a model as well as what
-        # we did in the scraping workshop.
+                # Step through to the job page.
+                job_page = session.get(BASE_URL + job_url)
+                # Make a new soup object to search the job page
+                job_page_soup = BeautifulSoup(job_page.content, "html.parser")
+                # Only get info from the job information section
+                full_job_info = job_page_soup.find("div", class_='reviewform')
+                # Three different div classes where job information is stored:
+                job_info_1 = full_job_info.find_all("div", class_=re.compile(r'row attr-job*'))
+                job_info_2 = full_job_info.find_all("div", class_='row ')
+                job_info_3 = full_job_info.find_all("div", class_='row comparison')
 
+                # The following is hard-coded to keep track of how many parameters are in each job_info_#
+                for job_detail in job_info_1:
+                    # Has 2 children
+                    # We can use something like print(job_detail.contents[i].contents[0]), where i is the child #
+                    continue
+                for job_detail in job_info_2:
+                    # Has 1 OR 2 children, usually 2 it seems
+                    # If there's only 1 child, we should get the prev_sibling of the child as the description
+                    continue
+                for job_detail in job_info_3:
+                    # Has 4 children
+                    continue
+
+                # there's also the "apply for this job" button (just a link), should we save it?
+
+                # Need to scrape for description, zipcode, wages, education, etc and
+                # put them into the DB. ---> Use above code as a model as well as what
+                # we did in the scraping workshop.
+
+                # Insert the job listing into the database (only the name and url
+                # have been implemented at this point)
+                c.execute(
+                    "INSERT INTO listings VALUES (?, ?, ?, 'TODO', 'TODO', 'TODO', 'TODO', 'TODO');", (name, id_num, job_url))
+            # When testing, break here
+        print(n)
     conn.commit()
 
+
+def login():
+    # get html data for login page
+    soup = BeautifulSoup(session.get(LOGIN_URL).content, "html.parser")
+    # pulls login url from page, could change per session
+    login = soup.find_all('form')[0]['action']
+
+    login_data = dict(v_username=USER_NAME,
+                      v_password=PASSWORD,
+                      FormName='Form0',
+                      fromlogin=1,
+                      button='Log in')
+
+    # logs in
+    r = session.post(BASE_URL + login, data=login_data)
+
+
 if __name__ == '__main__':
-    session = requests.Session()
-
-    # Code for Illinois Jobs Link Login - TODO: Fix login issues. (Try utf-8
-    # encoding??)
-
-    # soup = BeautifulSoup(session.get(SEARCH_URL).content, "html.parser")
-    # inputs = soup.find_all('input')
-    # token = ''
-    # for t in inputs:
-    #     try:
-    #         if t['name'] == 'authenticity_token':
-    #             token = t['value']
-    #             break
-    #     except KeyError as e:
-    #         pass
-    # # print(soup.prettify().encode('utf-8'))
-    # print(token)
-
-    # login_data = dict(v_username=USER_NAME,
-    #                   v_password=PASSWORD,
-    #                   authenticity_token=token,
-    #                   FormName=0,
-    #                   fromlogin=1,
-    #                   button='Log+in')
-    # login_data['utf-8'] = '&#x2713;'
-
-    # r = session.post(LOGIN_URL, data=login_data)
-
-    # print(r.content)
-
+    login()
     scrape()
-
-    # Print our entries in the database
-    for row in c.execute('SELECT * FROM listings'):
-        print row
-
     c.close()
