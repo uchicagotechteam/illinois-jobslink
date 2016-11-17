@@ -5,8 +5,10 @@ from settings import *
 import httplib2
 import json
 import sqlite3
+from http import *
 
 from apiclient.discovery import build
+from apiclient.http import MediaFileUpload
 
 app = Flask(__name__)
 
@@ -61,11 +63,16 @@ def update():
     ft_service = build('fusiontables', 'v2', http_auth)
 
     # Query everything in database
-    for row in c.execute('SELECT * FROM listings'):
-        print row
-        ft_service.query().sql(
-            sql="INSERT INTO 1WOu6DaHenRNNXIWHkNWjGf66sUCnfl5fLQHhHOwt (Name, 'Job Url') VALUES " + str(row) + ";").execute()
-
+    # for row in c.execute('SELECT * FROM listings'):
+    #     format_row = tuple([e.encode() for e in row])
+    #     print(format_row)
+    #     ft_service.query().sql(
+    #         sql="INSERT INTO " + FUSION_TABLE_ID + " (Name, 'Job Url') VALUES " +
+    #         str(format_row) + ";").execute()
+    media = MediaFileUpload(
+        'listings.csv', mimetype='application/octet-stream', resumable=True)
+    ft_service.table().importRows(tableId=FUSION_TABLE_ID,
+                                  media_body=media, isStrict=False, encoding='auto-detect').execute()
     return "WE DID IT!!"
 
 
