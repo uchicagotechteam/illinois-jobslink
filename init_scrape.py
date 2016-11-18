@@ -29,7 +29,7 @@ def scrape():
     # number
     # There are 40 pages of results, with 250 listings per page. There should
     # be more, but it's capped here.
-    for n in range(1, 41): # When testing: use range(1, 2)
+    for n in range(1, 2): # When testing: use range(1, 2)
         # Changes the page= number
         page = PAGE_URL[:87] + str(n) + PAGE_URL[88:]
         r = session.get(page)
@@ -41,7 +41,7 @@ def scrape():
             for u in urls:
                 # The href part of the tag will have the url
                 job_url = u['href']
-                name = u.string    # The name will be in the string part of the a tag
+                name = u.string[:u.string.find('(') - 1] # The name is in string part of the a tag
                 id_num = u.string[u.string.find('(') + 1:u.string.find(')')]
 
                 # Step through to the job page.
@@ -56,13 +56,17 @@ def scrape():
                 job_info_3 = full_job_info.find_all("div", class_='row comparison')
 
                 # The following is hard-coded to keep track of how many parameters are in each job_info_#
+                job_attr = {}
+                print(name)
                 for job_detail in job_info_1:
-                    # Has 2 children
-                    # We can use something like print(job_detail.contents[i].contents[0]), where i is the child #
-                    continue
+                    # ex. say you have <div class='row attr-job-average_hours'>40</div> (not actually as clean as this)
+                    # we can extract the substring that follows row attr-job- to get 'average_hours'
+                    # the following code will add to the dictionary the following: {u'average_hours': u'40'}
+                    # further down in c.execute(...) we'll add this data to the database file
+                    job_attr[job_detail['class'][1][9:]] = job_detail.contents[1].contents[0]
                 for job_detail in job_info_2:
-                    # Has 1 OR 2 children, usually 2 it seems
-                    # If there's only 1 child, we should get the prev_sibling of the child as the description
+                    # Has 1 OR 2 children
+                    # If there's only 1 child, we should get the prev_sibling of the child as the description (?)
                     continue
                 for job_detail in job_info_3:
                     # Has 4 children
@@ -76,9 +80,11 @@ def scrape():
 
                 # Insert the job listing into the database (only the name and url
                 # have been implemented at this point)
+                # We want to scrape the following (and maybe more): job, id, url, apply, address, wages, salary, jobdescription, hours, contact, company, companydescription, experience, education, overtime, training, shift, insurance, childcare, 401k
+                # Here we add 'average hours' to the database
                 c.execute(
-                    "INSERT INTO listings VALUES (?, ?, ?, 'TODO', 'TODO', 'TODO', 'TODO', 'TODO');", (name, id_num, job_url))
-            # When testing, break here
+                    "INSERT INTO listings VALUES (?, ?, ?, ?, 'TODO', 'TODO', 'TODO', 'TODO')", (name, id_num, job_url, job_attr['average_hours']))
+            break # When testing, break here
         print(n)
     conn.commit()
 
