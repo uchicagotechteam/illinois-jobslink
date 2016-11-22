@@ -21,7 +21,12 @@ if(os.path.exists(DB)):
 conn = sqlite3.connect(DB)
 c = conn.cursor()
 c.execute('''CREATE TABLE listings
-                (name text, id text, url text, company text, education text, average_hours text, min_wages text, max_wages text, bool_internship_externship text, bool_permanent text, bool_overtime_available text, bool_overtime_required text, bool_job_training text, bool_travel text, bool_driving text)''')
+                (name text, id text, url text, company text, education text, average_hours text,
+                 wage_type text, min_wages text, max_wages text, physical_address text,
+                 contact_address text, company_description text, benefits text,
+                 bool_internship_externship text, bool_permanent text, bool_overtime_available
+                 text, bool_overtime_required text, bool_job_training text, bool_travel text,
+                 bool_driving text)''')
 
 def scrape():
     # Goes through all 40 pages of job listings, scrapes job url, name, and id
@@ -82,7 +87,17 @@ def scrape():
                 # We want to scrape the following (and maybe more): job, id, url, apply, address, wages, salary, jobdescription, hours, contact, company, companydescription, experience, education, overtime, training, shift, insurance, childcare, 401k
                 # Here we add 'average hours' to the database
                 c.execute(
-                    "INSERT INTO listings VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (job_attr['title'], job_attr['display_id'], job_url, job_attr['company_name'], job_attr['required_education_level_id'], job_attr['average_hours'], job_attr['wage_lower_bound'], job_attr['wage_upper_bound'], job_attr['internship_externship'], job_attr['position_type'], job_attr['is_overtime_available'], job_attr['is_overtime_required'], job_attr['on_the_job_training'], job_attr['travel'], job_attr['driving_required']))
+                    "INSERT INTO listings VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    (job_attr['title'], job_attr['display_id'], job_url, job_attr['company_name'],
+                     job_attr['required_education_level_id'], job_attr['average_hours'],
+                     job_attr['wage_type'], job_attr['wage_lower_bound'],
+                     job_attr['wage_upper_bound'], job_attr['physical_address'],
+                     job_attr['contact_address'], job_attr['company_work_description'],
+                     job_attr['miscellaneous_benefits'], job_attr['internship_externship'],
+                     job_attr['position_type'], job_attr['is_overtime_available'],
+                     job_attr['is_overtime_required'], job_attr['on_the_job_training'],
+                     job_attr['travel'], job_attr['driving_required']))
+                # need to check miscellaneous_benefits
                 # is_day_shift
                 # is_evening_shift
                 # is_night_shift
