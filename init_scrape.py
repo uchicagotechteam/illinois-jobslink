@@ -21,8 +21,7 @@ if(os.path.exists(DB)):
 conn = sqlite3.connect(DB)
 c = conn.cursor()
 c.execute('''CREATE TABLE listings
-                (name text, id text, url text, apply text, zipcode text, wages text, description text, education text)''')
-
+                (name text, id text, url text, company text, education text, average_hours text, min_wages text, max_wages text, bool_internship_externship text, bool_permanent text, bool_overtime_available text, bool_overtime_required text, bool_job_training text, bool_travel text, bool_driving text)''')
 
 def scrape():
     # Goes through all 40 pages of job listings, scrapes job url, name, and id
@@ -41,8 +40,6 @@ def scrape():
             for u in urls:
                 # The href part of the tag will have the url
                 job_url = u['href']
-                name = u.string[:u.string.find('(') - 1] # The name is in string part of the a tag
-                id_num = u.string[u.string.find('(') + 1:u.string.find(')')]
 
                 # Step through to the job page.
                 job_page = session.get(BASE_URL + job_url)
@@ -57,13 +54,13 @@ def scrape():
 
                 # The following is hard-coded to keep track of how many parameters are in each job_info_#
                 job_attr = {}
-                print(name)
                 for job_detail in job_info_1:
                     # ex. say you have <div class='row attr-job-average_hours'>40</div> (not actually as clean as this)
                     # we can extract the substring that follows row attr-job- to get 'average_hours'
                     # the following code will add to the dictionary the following: {u'average_hours': u'40'}
                     # further down in c.execute(...) we'll add this data to the database file
                     job_attr[job_detail['class'][1][9:]] = job_detail.contents[1].contents[0]
+                    print(job_detail['class'][1][9:])
                 for job_detail in job_info_2:
                     # Has 1 OR 2 children
                     # If there's only 1 child, we should get the prev_sibling of the child as the description (?)
@@ -71,6 +68,8 @@ def scrape():
                 for job_detail in job_info_3:
                     # Has 4 children
                     continue
+
+                print(job_attr)
 
                 # there's also the "apply for this job" button (just a link), should we save it?
 
@@ -83,7 +82,14 @@ def scrape():
                 # We want to scrape the following (and maybe more): job, id, url, apply, address, wages, salary, jobdescription, hours, contact, company, companydescription, experience, education, overtime, training, shift, insurance, childcare, 401k
                 # Here we add 'average hours' to the database
                 c.execute(
-                    "INSERT INTO listings VALUES (?, ?, ?, ?, 'TODO', 'TODO', 'TODO', 'TODO')", (name, id_num, job_url, job_attr['average_hours']))
+                    "INSERT INTO listings VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (job_attr['title'], job_attr['display_id'], job_url, job_attr['company_name'], job_attr['required_education_level_id'], job_attr['average_hours'], job_attr['wage_lower_bound'], job_attr['wage_upper_bound'], job_attr['internship_externship'], job_attr['position_type'], job_attr['is_overtime_available'], job_attr['is_overtime_required'], job_attr['on_the_job_training'], job_attr['travel'], job_attr['driving_required']))
+                # is_day_shift
+                # is_evening_shift
+                # is_night_shift
+                # is_rotating_shift
+                # is_split_shift
+                # is_no_preference_shift
+                # other_shift_schedules
             break # When testing, break here
         print(n)
     conn.commit()
