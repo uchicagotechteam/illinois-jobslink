@@ -69,6 +69,9 @@ def update():
     #     ft_service.query().sql(
     #         sql="INSERT INTO " + FUSION_TABLE_ID + " (Name, 'Job Url') VALUES " +
     #         str(format_row) + ";").execute()
+
+    ft_service.query().sql(sql='DELETE FROM ' + FUSION_TABLE_ID).execute()
+
     media = MediaFileUpload(
         'listings.csv', mimetype='application/octet-stream', resumable=True)
     ft_service.table().importRows(tableId=FUSION_TABLE_ID,

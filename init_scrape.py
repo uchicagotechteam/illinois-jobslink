@@ -51,20 +51,20 @@ def scrape():
                 job_soup = BeautifulSoup(job_page.content, "html.parser")
                 tags = job_soup.find_all(
                     'div', class_='row attr-job-physical_address')
-
                 for t in tags:
                     children = t.contents
                     address_parts = children[1]
                     parts = address_parts.contents
-                    import pdb
-                    pdb.set_trace()
+                    # import pdb
+                    # pdb.set_trace()
                     parts = filter(
-                        lambda s: type(s) is str, parts)
+                        lambda s: 'br>' not in str(s) and '<br' not in str(s), parts)
                     location = ""
-                    print parts
+                    # print parts
                     for part in parts:
                         location += str(part) + ", "
-                    print location
+
+                print location
                 # Need to scrape for description, zipcode, wages, education, etc and
                 # put them into the DB. ---> Use above code as a model as well as what
                 # we did in the scraping workshop.
@@ -74,7 +74,7 @@ def scrape():
                 # c.execute(
                 #     "INSERT INTO listings VALUES (?, ?, ?, 'TODO', 'TODO', 'TODO', 'TODO', 'TODO');", (name, id_num, job_url))
                 c.execute(
-                    "INSERT INTO listings VALUES (?, ?, ?);", (name, BASE_URL + job_url, location))
+                    "INSERT INTO listings VALUES (?, ?, ?);", (name, BASE_URL + job_url, "\"" + location + "\""))
 
         print(n)
     conn.commit()
@@ -100,7 +100,7 @@ if __name__ == '__main__':
     login()
     scrape()
 
-    csvWriter = csv.writer(open("listings.csv", "w"))
+    csvWriter = csv.writer(open("listings.csv", "w"))  # , delimiter='\t')
 
     for row in c.execute('SELECT * FROM listings'):
         print row
