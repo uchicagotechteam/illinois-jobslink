@@ -20,11 +20,17 @@ def close_connection(exception):
         db.close()
 
 
+@app.route('/')
+def index():
+    return redirect(url_for('help'))
+
 # query string is of the following format
 # 'http://localhost:5000/jobs?name=<STRING>&id=<STRING>&...'
 # name = <string>
 # id = <string>
 # other parameters = (date posted?, zipcode?, education?, etc.)
+
+
 @app.route('/help')
 def help():
     text = 'name, education, company, experience, job_type, temp_perm, hours'

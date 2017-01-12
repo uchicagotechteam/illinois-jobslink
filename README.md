@@ -1,7 +1,47 @@
 # Illinois JobsLink Project
 Build Illinois Jobslink scraper, API, and front end. 
 
+This project was an attempt to build an Illinois Joblinks scraper and API to index the jobs. This was built such that important public job listing data could be accessible and utilized. This is aimed towards a more technically savvy audience who are familiar with HTTP requests, JSON, and general API protocol. 
 
+## Setup
+
+You will require the necessary python modules to run these scripts. Be sure to install the modules included in `requirements.txt`. 
+
+You will also need to setup your own account on [https://illinoisjoblink.illinois.gov/ada/r/](https://illinoisjoblink.illinois.gov/ada/r/) so that this tool is able to access all of the data. Beware, the process is cumbersome. 
+
+Furthermore, you MUST include your username and password in `settings.py` so that the scraper is able to effectively login and grab data. 
+
+## Scrape
+
+The scraping part of this project is found within `init_scrape.py`. You can run the intial scrape (which scrapes ALL of the jobs) with the following:
+
+```
+python init_scrape.py
+```
+
+This should take a while as it must grab on the order of ~10^4 job listings and all of their associated data. The results of the scrape are stored within a `sqlite` databse called `listings.db`. This database can be accessed using the `sqlite` client and can be, of course, interacted with using SQL. Those familiar with databases can use this directly to tailor this data for their specific uses. 
+
+
+## API
+
+We have included a module to setup an API so that others may access the data in the database using HTTP requests. This can be run using the following
+```
+python api.py
+```
+
+Query strings can be used to access the data. The endpoints are 
+
++ `/jobs` - Lists the job listings
++ `/help` - Lists the possible filters you may use
+
+You may filter the job listings using query strings, such as `http://127.0.0.1:5000/jobs?name=ferret&id=007`. Be sure to check the names of the parameters and what values are able to be taken. It is useful to refer to [https://illinoisjoblink.illinois.gov/ada/r/search/jobs](https://illinoisjoblink.illinois.gov/ada/r/search/jobs) to see what valid entries are for fields. 
+
+## OAuth
+We have attempted to support integration with Google Fusion Tables in an effort to use Derek Eder Searcheable Map Template. However, due to the sheer number of job listings, it is not feasible to map all listings in any sensible manner. Furthermore, there exist Google restrictions that hinder our utilization of these tools. `oauth.py` contains our attempts and currently is able to write all of the data to a Fusion Table, where perhaps some may find it useful to host for sharing of the data. You will need to update `settings.py` accordingly with the correct `FusionTableId`. This app will also require permission to your Google account so it may write to the target FusionTable. 
+
+You may also refer to our development notes/timeline below for both our development journey and greater insight into the inner mechanics.
+
+# Development Timeline & Misc. - NOTE: THIS IS NOT DESCRIPTIVE OF CURRENT WORKINGS - USED ONLY FOR DEV
 ## Overview
 + Scrape the relevant information from [https://illinoisjoblink.illinois.gov/ada/r/search/jobs](https://illinoisjoblink.illinois.gov/ada/r/search/jobs). We will be using [BeautifulSoup](https://www.crummy.com/software/BeautifulSoup/bs4/doc/) and [Requests](http://docs.python-requests.org/en/master/).
   * Scrape `How To Apply`, `Education Level`, `Salary/Wages`, `Location`
