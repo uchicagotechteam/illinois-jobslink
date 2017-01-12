@@ -27,11 +27,13 @@ def close_connection(exception):
 # other parameters = (date posted?, zipcode?, education?, etc.)
 @app.route('/help')
 def help():
-    text = 'name, id, date, zip, education, city, state, industry, company'
+    text = 'name, education, company, experience, job_type, temp_perm, hours'
     return 'Hey! Here is a list of available filters: %s' % (text)
-    
-# @app.route('/help') to list the available filters and 
+
+# @app.route('/help') to list the available filters and
 # @app.route('/') for a welcome page
+
+
 @app.route('/jobs')
 def get_jobs():
     c = get_db().cursor()
@@ -42,60 +44,46 @@ def get_jobs():
 
     # Get the parameters from the url
     name = request.args.get('name')
-    id_num = request.args.get('id')
-    date = request.args.get('date')
-    zip = request.args.get('zip')
     education = request.args.get('education')
-
-
-# city, state, industry, company, date, zip, education, wage, 
-
-    city = request.args.get('city')
-    state = request.args.get('state')
-    industry = request.args.get('industry')
     company = request.args.get('company')
-     
+    experience = request.args.get('experience')
+    job_type = request.args.get('job_type')
+    perm = request.args.get('temp_perm')
+    hours = request.args.get('hours')
 
     # Build the query string by appending values
-    # city state industry company 
-   
+    # city state industry company
+
     if name is not None:
         query += join_str + ('name = %s' % (name))
         join_str = ' AND '
-    if id_num is not None:
-        query += join_str + ('id = %s' % (id_num))
-        join_str = ' AND '
-
-    if date is not None:
-        query += join_str + ('date = %s' % (date))
-        join_str = 'AND'
-    if zip is not None:
-        query += join_str + ('zip = %s' % (zip))
-        join_str = 'AND'
     if education is not None:
-        query += join_str + ('education = %s' % (education))
+        query += join_str + ('edu = %s' % (education))
         join_str = 'AND'
- #   if wage 
-
-
-    if city is not None:
-        query += join_str + ('city = %s' % (city))
-        join_str = ' AND '
-    if state is not None:
-        query += join_str + ('state = %s' % (state))
-        join_str = ' AND '
-    if industry is not None:
-        query += join_str + ('industry = %s' % (industry))
-        join_str = ' AND '
     if company is not None:
         query += join_str + ('company = %s' % (company))
         join_str = ' AND '
+    if experience is not None:
+        query += join_str + ('exp = %s' % (company))
+        join_str = ' AND '
+    if job_type is not None:
+        query += join_str + ('employment = %s' % (company))
+        join_str = ' AND '
+    if perm is not None:
+        query += join_str + ('temp = %s' % (company))
+        join_str = ' AND '
+    if hours is not None:
+        query += join_str + ('hours = %s' % (company))
 
+    print(query)
+    results = []
     for row in c.execute(query):
-        print row
+        results.append(row)
+
+    print(len(results))
 
     # Build a list with the tuples returned from sqlite and return a json
-    return jsonify({'jobs': '\n'.join([', '.join(r) for r in c])})
+    return jsonify({'jobs': '\n'.join([', '.join(r) for r in results])})
 
 if __name__ == "__main__":
     app.run(debug=True)
